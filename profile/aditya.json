@@ -1,0 +1,116 @@
+{
+  "name": "Aditya Narad",
+  "title": "Sr. Product Manager",
+  "email": "adityanarad2407@gmail.com",
+  "phone": "+91 8815725467",
+  "location": "Pune, India",
+  "linkedin": "",
+  "yearsExperience": 11,
+  "seniority": ["senior", "lead", "principal", "group", "staff"],
+  "targetTitles": [
+    "senior product manager",
+    "principal product manager",
+    "group product manager",
+    "technical product manager",
+    "lead product manager",
+    "director of product",
+    "platform product manager",
+    "product manager"
+  ],
+  "locations": ["pune", "remote india", "remote"],
+  "workAuthorization": "Indian citizen — no sponsorship required for India roles",
+  "companyPreference": "MNC",
+
+  "_comment": "keywords drive the 50:50 match score. tight = your niche, broad = general senior-PM fit.",
+  "keywords": {
+    "tight": {
+      "iam": 10,
+      "identity": 9,
+      "access management": 9,
+      "rbac": 9,
+      "authorization": 9,
+      "authentication": 7,
+      "identity governance": 8,
+      "sso": 6,
+      "oauth": 6,
+      "okta": 6,
+      "zero trust": 7,
+      "cloud platform": 8,
+      "cloud-native": 7,
+      "aws": 7,
+      "multi-tenant": 7,
+      "api platform": 8,
+      "api": 5,
+      "platform": 6,
+      "security": 6,
+      "infrastructure": 5,
+      "developer platform": 7
+    },
+    "broad": {
+      "product manager": 10,
+      "product management": 9,
+      "roadmap": 6,
+      "product strategy": 7,
+      "agile": 5,
+      "scrum": 4,
+      "safe": 5,
+      "stakeholder": 5,
+      "backlog": 4,
+      "prd": 5,
+      "user stories": 4,
+      "go-to-market": 5,
+      "saas": 6,
+      "enterprise": 6,
+      "b2b": 5,
+      "data-driven": 4,
+      "prioritization": 4,
+      "cross-functional": 4,
+      "pi planning": 5,
+      "product owner": 6
+    }
+  },
+
+  "seniorityBoost": {
+    "principal": 15,
+    "staff": 15,
+    "lead": 10,
+    "senior": 10,
+    "sr": 10,
+    "group": 12,
+    "director": 8,
+    "head of": 10
+  },
+  "seniorityPenalty": {
+    "associate": -20,
+    "junior": -25,
+    "intern": -40,
+    "graduate": -30,
+    "apprentice": -30,
+    "entry": -25
+  },
+
+  "achievements": [
+    "Owned product strategy and roadmap for Guardian, Optum's enterprise RBAC Authorization-as-a-Service platform securing access for workforce, partners, and customers across multiple identity providers.",
+    "Improved identity governance access-review completion rates from 68% to 97%.",
+    "Delivered bulk organization onboarding reducing turnaround from a 2-day SLA to near real-time, enabling onboarding for 8,000+ organizations.",
+    "Streamlined user provisioning, cutting onboarding time from 1 day to under 5 minutes and improving customer Time-to-Value.",
+    "Delivered a consolidated Profile API at 99.99% availability with backward-compatible contracts across versions.",
+    "Owned the product lifecycle for IAM offerings impacting 35M+ users at JPMorgan Chase, increasing delivery velocity by 30%.",
+    "Drove secure development into the IAM roadmap, achieving a 100% drop in critical/high vulnerabilities and 70% reduction in medium risks.",
+    "Optimized over $1M YoY cost through application consolidation and decommissioning of redundant AWS resources.",
+    "Implemented a platform chargeback model within a $10M IAM platform budget, improving cost transparency across business units."
+  ],
+  "certifications": [
+    "Certified Scrum Product Owner (CSPO)",
+    "AWS Certified Solution Architect — Associate",
+    "AWS Certified Cloud Practitioner"
+  ],
+  "topSkills": [
+    "Identity & Access Management (IAM)",
+    "Authorization / RBAC",
+    "Cloud platforms (AWS)",
+    "API products & platform strategy",
+    "Enterprise-scale SaaS",
+    "Agile / SAFe / PI planning"
+  ]
+}

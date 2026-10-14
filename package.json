@@ -1,0 +1,14 @@
+{
+  "name": "job-hunt-assistant",
+  "version": "1.0.0",
+  "description": "Human-in-the-loop job matching assistant: fetch, rank, and draft tailored applications. No auto-submit.",
+  "type": "commonjs",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node run.js",
+    "demo": "node run.js --demo",
+    "fillsheet": "node fillsheet.js",
+    "autofill:build": "node autofill/build-bookmarklet.js"
+  },
+  "license": "MIT"
+}

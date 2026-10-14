@@ -1,0 +1,73 @@
+{
+  "_comment": "Your standard application answers. Fill these once. The vault generator surfaces them per job so you paste instead of retype. Nothing here is auto-submitted — you copy into each form yourself. Review legal/attestation answers every single time.",
+
+  "contact": {
+    "fullName": "Aditya Narad",
+    "firstName": "Aditya",
+    "lastName": "Narad",
+    "email": "adityanarad2407@gmail.com",
+    "phone": "+91 8815725467",
+    "phoneCountryCode": "+91",
+    "city": "Pune",
+    "state": "Maharashtra",
+    "country": "India",
+    "postalCode": "",
+    "linkedin": "",
+    "portfolio": "",
+    "github": ""
+  },
+
+  "workAuthorization": {
+    "_note": "REVIEW THESE PER APPLICATION — attestations are legally binding.",
+    "country": "India",
+    "authorizedToWorkInIndia": "Yes — Indian citizen",
+    "requireSponsorshipIndia": "No",
+    "requireSponsorshipOther": "Yes (for roles outside India)",
+    "workAuthorizationStatement": "Indian citizen. Authorized to work in India without sponsorship. Would require sponsorship for roles outside India."
+  },
+
+  "logistics": {
+    "currentLocation": "Pune, India",
+    "willingToRelocate": "Open to Bangalore / Hyderabad / Gurgaon for the right role",
+    "remotePreference": "Open to onsite (Pune), hybrid, or remote-India",
+    "noticePeriod": "<FILL: e.g. 60 days / 90 days>",
+    "earliestStartDate": "<FILL: date or 'after notice period'>",
+    "willingToTravel": "Yes, as required"
+  },
+
+  "compensation": {
+    "_note": "Keep ranges, not single numbers. Re-check expectations per role/level.",
+    "currentCTC": "<FILL: current CTC>",
+    "expectedCTC": "<FILL: expected CTC range>",
+    "currency": "INR",
+    "salaryExpectationStatement": "Open to discussing a package aligned with the role, level, and market."
+  },
+
+  "experience": {
+    "yearsOfExperience": "11+",
+    "yearsInProductManagement": "8+",
+    "currentTitle": "Sr. Product Manager",
+    "currentCompany": "Persistent Systems (client: Optum / UnitedHealth Group)",
+    "highestDegree": "Bachelor of Mechanical Engineering",
+    "university": "Rungta College of Engineering & Technology",
+    "certifications": "CSPO; AWS Solution Architect Associate; AWS Cloud Practitioner"
+  },
+
+  "screeningAnswers": {
+    "_note": "Reusable long-text answers. Swap <COMPANY>/<ROLE> per application.",
+    "whyThisCompany": "I'm drawn to <COMPANY> because of its scale and the depth of its platform work. My background building enterprise IAM, authorization, and cloud-platform products maps directly to the problems <COMPANY> is solving, and I want to contribute to products used by millions.",
+    "whyThisRole": "The <ROLE> role sits exactly where my strengths are: owning platform/product strategy for identity, authorization, and cloud services at enterprise scale, and turning complex technical requirements into shipped outcomes.",
+    "greatestStrength": "Translating ambiguous, highly technical platform requirements into clear roadmaps and shipped capabilities — e.g. taking identity-governance access reviews from 68% to 97% completion and cutting onboarding from a 2-day SLA to near real-time.",
+    "biggestAchievement": "Owning the product lifecycle for IAM offerings impacting 35M+ users at JPMorgan Chase, increasing delivery velocity 30% while driving critical/high vulnerabilities to zero.",
+    "leadershipStyle": "Outcome-focused and collaborative — I align engineering, security, and business stakeholders around clear priorities, then protect the team's focus so they can deliver.",
+    "shortBio": "Senior Technical Product Manager with 11+ years delivering enterprise platform products across IAM, cloud platforms, authorization services, and API ecosystems for products serving millions of users."
+  },
+
+  "demographics": {
+    "_note": "EEO/voluntary disclosure questions. Answer only what you choose; many are optional. REVIEW PER APPLICATION.",
+    "gender": "<optional — your choice>",
+    "disabilityStatus": "<optional — your choice>",
+    "veteranStatus": "N/A (India)",
+    "ethnicity": "<optional — your choice>"
+  }
+}
