@@ -64,7 +64,21 @@ async function main() {
   const normalized = normalize(raw);
   console.log(`\n• ${raw.length} fetched -> ${normalized.length} after dedupe`);
 
-  const scored = scoreAll(normalized, profile, config);
+  // Early location filter: in strict mode, drop non-India jobs before scoring
+  let toScore = normalized;
+  if (config.location.strict) {
+    toScore = normalized.filter((j) => {
+      const loc = (j.location || '').toLowerCase();
+      if (!loc) return false; // no location = exclude in strict mode
+      return config.location.allow.some((a) => loc.includes(a));
+    });
+    const dropped = normalized.length - toScore.length;
+    if (dropped > 0) {
+      console.log(`• ${dropped} jobs excluded (non-India locations)`);
+    }
+  }
+
+  const scored = scoreAll(toScore, profile, config);
   console.log(`• ${scored.length} above min score (${config.minScore})`);
 
   // Reconcile against what you've seen/applied/skipped before.
