@@ -5,16 +5,29 @@
     "fullName": "Aditya Narad",
     "firstName": "Aditya",
     "lastName": "Narad",
-    "email": "adityanarad2407@gmail.com",
+    "givenName": "Aditya",
+    "familyName": "Narad",
+    "localGivenName": "Aditya",
+    "localFamilyName": "Narad",
+    "email": "adityanarad24@gmail.com",
+    "alternateEmail": "adityanarad2407@gmail.com",
     "phone": "+91 8815725467",
+    "phoneNumber": "8815725467",
     "phoneCountryCode": "+91",
+    "phoneDeviceType": "Mobile",
+    "phoneExtension": "",
+    "addressLine1": "B703 yashwin orizontee kharadi",
+    "addressLine2": "",
     "city": "Pune",
     "state": "Maharashtra",
     "country": "India",
     "postalCode": "",
+    "zipCode": "",
     "linkedin": "",
+    "linkedinUrl": "",
     "portfolio": "",
-    "github": ""
+    "github": "",
+    "githubUrl": ""
   },
 
   "workAuthorization": {
@@ -55,6 +68,11 @@
 
   "screeningAnswers": {
     "_note": "Reusable long-text answers. Swap <COMPANY>/<ROLE> per application.",
+    "howDidYouHearAboutUs": "Internet Search (Google, Bing, etc.)",
+    "referralSource": "Internet Search",
+    "workedForCompanyBefore": "No",
+    "providedServicesAsContractor": "No",
+    "everWorkedHere": "No",
     "whyThisCompany": "I'm drawn to <COMPANY> because of its scale and the depth of its platform work. My background building enterprise IAM, authorization, and cloud-platform products maps directly to the problems <COMPANY> is solving, and I want to contribute to products used by millions.",
     "whyThisRole": "The <ROLE> role sits exactly where my strengths are: owning platform/product strategy for identity, authorization, and cloud services at enterprise scale, and turning complex technical requirements into shipped outcomes.",
     "greatestStrength": "Translating ambiguous, highly technical platform requirements into clear roadmaps and shipped capabilities — e.g. taking identity-governance access reviews from 68% to 97% completion and cutting onboarding from a 2-day SLA to near real-time.",
