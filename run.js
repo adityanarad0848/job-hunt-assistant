@@ -70,7 +70,16 @@ async function main() {
     toScore = normalized.filter((j) => {
       const loc = (j.location || '').toLowerCase();
       if (!loc) return false; // no location = exclude in strict mode
-      return config.location.allow.some((a) => loc.includes(a));
+      
+      // Check for "india" keyword
+      if (loc.includes('india')) return true;
+      
+      // Check for Indian cities
+      if (config.location.indianCities && config.location.indianCities.some(city => loc.includes(city))) {
+        return true;
+      }
+      
+      return false;
     });
     const dropped = normalized.length - toScore.length;
     if (dropped > 0) {

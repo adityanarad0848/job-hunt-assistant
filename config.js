@@ -15,10 +15,11 @@ module.exports = {
   location: {
     city: 'Pune',
     country: 'in', // Adzuna country code (India)
-    // A job must match one of these (case-insensitive substring) to count as in-location.
-    allow: ['pune', 'remote', 'india', 'anywhere'],
-    // Strict mode: if true, jobs without a matching location are excluded entirely.
-    // If false, out-of-location jobs get a -20 point penalty but remain visible.
+    // INDIA-ONLY: A job must contain "india" OR one of these Indian cities (case-insensitive).
+    // "Remote" alone is NOT enough — it must be "Remote, India" or have an Indian city.
+    requireIndia: true,  // Require "india" keyword OR an Indian city
+    indianCities: ['pune', 'bengaluru', 'bangalore', 'hyderabad', 'mumbai', 'delhi', 'chennai', 'kolkata', 'gurugram', 'gurgaon', 'noida'],
+    // Strict mode: if true, jobs without India/Indian-city are excluded entirely.
     strict: true,
   },
 
