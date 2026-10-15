@@ -12,6 +12,7 @@ const config = require('./config');
 const { normalize } = require('./core/normalize');
 const { scoreAll } = require('./core/score');
 const report = require('./core/report');
+const tracker = require('./core/tracker');
 
 const sources = {
   adzuna: require('./sources/adzuna'),
@@ -64,23 +65,44 @@ async function main() {
   console.log(`\n• ${raw.length} fetched -> ${normalized.length} after dedupe`);
 
   const scored = scoreAll(normalized, profile, config);
-  console.log(`• ${scored.length} above min score (${config.minScore})\n`);
+  console.log(`• ${scored.length} above min score (${config.minScore})`);
+
+  // Reconcile against what you've seen/applied/skipped before.
+  const { annotated } = tracker.reconcile(__dirname, scored);
+  const counts = tracker.summary(annotated);
+  console.log(`• tracking: ${counts.new} new, ${counts.seen} seen, ${counts.applied} applied, ${counts.skipped} skipped\n`);
+
+  // By default hide jobs you've applied to or skipped; --all shows everything.
+  const showAll = process.argv.includes('--all');
+  const visible = showAll
+    ? annotated
+    : annotated.filter((j) => j.state !== 'applied' && j.state !== 'skipped');
+  // New jobs first, then by score.
+  visible.sort((a, b) => (b.isNew - a.isNew) || (b.score - a.score));
 
   const meta = {
     generatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC',
     sources: used.length ? used : ['none'],
     demo,
+    counts,
+    showAll,
   };
-  const { htmlPath, jsonPath } = report.write(scored, profile, config, meta, __dirname);
+  const { htmlPath, jsonPath } = report.write(visible, profile, config, meta, __dirname);
 
-  // Console preview of the top matches.
-  console.log('Top matches:');
-  for (const j of scored.slice(0, 10)) {
+  // Console preview — new jobs flagged.
+  if (counts.new) console.log(`🆕 ${counts.new} NEW since last run:`);
+  for (const j of visible.filter((x) => x.isNew).slice(0, 10)) {
     console.log(`  ${String(j.score).padStart(3)}  ${j.title}  —  ${j.company} (${j.location || 'N/A'})`);
+  }
+  console.log('\nTop matches:');
+  for (const j of visible.slice(0, 10)) {
+    const tag = j.isNew ? '🆕' : '  ';
+    console.log(`  ${tag} ${String(j.score).padStart(3)}  ${j.title}  —  ${j.company}`);
   }
 
   console.log(`\n✓ Dashboard: ${htmlPath}`);
   console.log(`✓ JSON:      ${jsonPath}`);
+  console.log('  Mark jobs:  node applied.js <rank> applied|skip|seen');
   console.log(demo
     ? '\nThis was demo data. On a machine with internet, add API keys (.env) and run: node run.js'
     : '');

@@ -11,10 +11,21 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const vault = JSON.parse(fs.readFileSync(path.join(root, 'profile', 'answers-vault.json'), 'utf8'));
 const filler = fs.readFileSync(path.join(__dirname, 'filler.js'), 'utf8');
+let matcher = fs.readFileSync(path.join(__dirname, 'matcher.js'), 'utf8');
 
-// The payload: inject the vault, then run the filler IIFE (shown in the console box).
+// matcher.js is a CommonJS module (for the Node tests). For the browser, wrap it
+// as an IIFE whose module.exports becomes window.__JHA_MATCHER__ — same code,
+// so the unit tests cover exactly what runs in the browser.
+const matcherBrowser =
+  'window.__JHA_MATCHER__=(function(){var module={exports:{}};\n' +
+  matcher +
+  '\nreturn module.exports;})();';
+
+// The payload: inject the vault + tested matcher, then run the filler IIFE.
 const payload =
-  'window.__JHA_VAULT__=' + JSON.stringify(vault) + ';\n' + filler;
+  'window.__JHA_VAULT__=' + JSON.stringify(vault) + ';\n' +
+  matcherBrowser + '\n' +
+  filler;
 
 // Bookmarklet: base64-encode the ENTIRE payload. Base64 uses only [A-Za-z0-9+/=],
 // so it contains no quotes, apostrophes, ampersands, spaces, or newlines — safe to

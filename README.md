@@ -123,25 +123,63 @@ and clicks through violates their terms and risks a ban. A bookmarklet is just y
 browser, your own session, your own click — safe, and it still means **you only review a
 filled form instead of typing**. Re-run the builder whenever you edit `answers-vault.json`.
 
-### v4 — (optional, not built) Dropdown/radio + file-upload assist
-Workday also has select menus, radios, and resume-upload steps a text-field filler can't
-safely touch. A future version could pre-select obvious dropdowns and still pause for review.
+### v4 — Dropdown & radio autofill (BUILT)
+The bookmarklet now also fills native `<select>` dropdowns and Yes/No radio groups
+(e.g. country, work authorization, sponsorship, years of experience) — not just text
+fields. It **deliberately skips** EEO/diversity questions and "I certify / I agree"
+attestations, leaving them for you, and the banner reports how many sensitive fields it
+left. The matching rules live in `autofill/matcher.js` and are covered by offline unit
+tests (`node autofill/matcher.test.js`, 28 cases).
+
+File uploads (resume) still have to be done by hand — a bookmarklet can't attach files.
+
+## Daily agent — run it on a schedule
+
+Turn the tool into a hands-off daily agent that fetches, ranks, and flags new jobs for you.
+
+### Track what's new / applied / skipped
+```bash
+node run.js                      # new jobs flagged 🆕 and sorted to the top;
+                                 # applied/skipped jobs are hidden
+node run.js --all                # show everything, including applied/skipped
+node applied.js                  # list tracked jobs by state
+node applied.js 3 applied        # mark rank #3 applied (drops off future lists)
+node applied.js 5 skip           # mark rank #5 skipped
+```
+State is stored in `applied.json` (gitignored, personal). "Applied" means *you told the
+tool you applied* — it can't see the job portal's side.
+
+### Schedule it (runs itself)
+```bash
+node schedule/setup.js           # prints the exact cron / Task Scheduler command for 8:00am
+node schedule/setup.js 7 30      # for 7:30am
+```
+Paste the printed command once. Each day it runs the pipeline, flags new jobs, and rebuilds
+`report.html`. Logs go to `schedule/logs/`. The runner lives in `schedule/run-daily.sh`
+(macOS/Linux) and `schedule/run-daily.ps1` (Windows). Your machine must be on at that time.
+
+### Optional email summary
+Set `ENABLE_NOTIFY=1` and the `SMTP_*` / `NOTIFY_TO` vars in `.env` (Gmail needs an
+**App Password**, not your login password). After each scheduled run you'll get a short
+email listing the new matches. Zero dependencies — raw SMTP over TLS. Off by default.
 
 ## Project layout
 
 ```
 job-hunt-assistant/
-├── run.js                      orchestrator: fetch -> rank -> dashboard (--demo for offline)
+├── run.js                      orchestrator: fetch -> rank -> track -> dashboard (--demo, --all)
+├── applied.js                  mark jobs new/seen/applied/skipped
 ├── fillsheet.js                v2: generate per-job answer fill sheets
 ├── config.js                   targeting + sources (Workday/Greenhouse/Lever/Ashby/SmartRecruiters)
 ├── profile/
 │   ├── aditya.json             your structured profile + match weights
 │   └── answers-vault.json      v2/v3: your reusable application answers
 ├── sources/                    adzuna, greenhouse, lever, workday, ashby, smartrecruiters
-├── core/                       http, normalize, score, tailor, report, vault
-├── autofill/                   v3: filler.js + build-bookmarklet.js (-> install.html)
+├── core/                       http, normalize, score, tailor, report, vault, tracker
+├── autofill/                   v3/v4: filler.js, matcher.js (+ tests), build-bookmarklet.js
+├── schedule/                   run-daily.sh/.ps1, setup.js, notify.js (daily agent)
 ├── demo/sampleJobs.js          real-shaped offline fixtures
-├── .env.example                API key template
+├── .env.example                API key + notifier template
 └── README.md
 ```
 

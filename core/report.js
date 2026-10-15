@@ -24,18 +24,18 @@ function build(jobs, profile, config, meta) {
   });
 
   const cards = rows.map((j) => `
-    <div class="card" data-score="${j.score}" data-company="${esc(j.company.toLowerCase())}">
+    <div class="card" data-score="${j.score}" data-company="${esc(j.company.toLowerCase())}" data-new="${j.isNew ? 1 : 0}" data-state="${esc(j.state || 'seen')}">
       <div class="head">
         <span class="score" style="background:${scoreColor(j.score)}">${j.score}</span>
         <div class="titleblock">
-          <div class="jtitle">${esc(j.title)}</div>
+          <div class="jtitle">${j.isNew ? '<span class="newbadge">NEW</span> ' : ''}${esc(j.title)}${j.state === 'applied' ? ' <span class="statebadge applied">applied</span>' : ''}${j.state === 'skipped' ? ' <span class="statebadge skipped">skipped</span>' : ''}</div>
           <div class="meta">${esc(j.company)} · ${esc(j.location || 'Location N/A')} · <span class="src">${esc(j.source)}</span>${j.postedDate ? ' · ' + esc(String(j.postedDate).slice(0, 10)) : ''}</div>
         </div>
         <a class="apply" href="${esc(j.url)}" target="_blank" rel="noopener">Apply →</a>
       </div>
       <div class="reasons">${j.reasons.map((r) => `<span class="chip">${esc(r)}</span>`).join('')}</div>
       ${j.letter ? `<details><summary>Cover-letter draft</summary><textarea readonly>${esc(j.letter)}</textarea>
-        <div class="hint">Fill sheet for this job: <code>node fillsheet.js ${j.rank}</code></div></details>` : ''}
+        <div class="hint">Fill sheet: <code>node fillsheet.js ${j.rank}</code> · Mark: <code>node applied.js ${j.rank} applied</code></div></details>` : ''}
     </div>`).join('\n');
 
   return `<!doctype html>
@@ -69,15 +69,21 @@ function build(jobs, profile, config, meta) {
   .hint{font-size:12px;color:#636c76;margin-top:6px}
   .hint code{background:#eaeef2;padding:2px 6px;border-radius:4px;font-size:11.5px}
   .count{font-size:13px;color:#636c76}
+  .newbadge{background:#0969da;color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:4px;vertical-align:middle}
+  .statebadge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;vertical-align:middle}
+  .statebadge.applied{background:#1a7f37;color:#fff}
+  .statebadge.skipped{background:#636c76;color:#fff}
+  .newcount{background:#0969da;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700}
 </style></head>
 <body>
 <header>
   <h1>Job Matches — ${esc(profile.name)}</h1>
-  <p>${rows.length} matches · generated ${esc(meta.generatedAt)} · sources: ${esc(meta.sources.join(', '))}${meta.demo ? ' · <strong>DEMO DATA</strong>' : ''}</p>
+  <p>${rows.length} shown${meta.counts && meta.counts.new ? ' · <span class="newcount">' + meta.counts.new + ' NEW</span>' : ''} · generated ${esc(meta.generatedAt)} · sources: ${esc(meta.sources.join(', '))}${meta.showAll ? ' · showing all (incl. applied/skipped)' : ''}${meta.demo ? ' · <strong>DEMO DATA</strong>' : ''}</p>
 </header>
 <div class="controls">
   <label>Min score <input type="range" id="minScore" min="0" max="100" value="0"> <span id="minScoreVal">0</span></label>
   <label>Company <input type="text" id="companyFilter" placeholder="filter…"></label>
+  <label><input type="checkbox" id="newOnly"> New only</label>
   <span class="count" id="count"></span>
 </div>
 <main id="list">
@@ -88,19 +94,22 @@ ${cards}
   const minScore = document.getElementById('minScore');
   const minScoreVal = document.getElementById('minScoreVal');
   const companyFilter = document.getElementById('companyFilter');
+  const newOnly = document.getElementById('newOnly');
   const count = document.getElementById('count');
   function apply(){
     const min = +minScore.value; minScoreVal.textContent = min;
     const q = companyFilter.value.toLowerCase();
+    const no = newOnly.checked;
     let shown = 0;
     for(const c of cards){
-      const ok = (+c.dataset.score >= min) && (!q || c.dataset.company.includes(q));
+      const ok = (+c.dataset.score >= min) && (!q || c.dataset.company.includes(q)) && (!no || c.dataset.new === '1');
       c.style.display = ok ? '' : 'none'; if(ok) shown++;
     }
     count.textContent = shown + ' shown';
   }
   minScore.addEventListener('input', apply);
   companyFilter.addEventListener('input', apply);
+  newOnly.addEventListener('change', apply);
   apply();
 </script>
 </body></html>`;

@@ -14,7 +14,8 @@
  */
 (function () {
   var V = window.__JHA_VAULT__;
-  if (!V) { alert('Autofill: no vault loaded.'); return; }
+  var M = window.__JHA_MATCHER__; // tested matching rules, injected by the builder
+  if (!V || !M) { alert('Autofill: vault/matcher not loaded.'); return; }
 
   // Flatten vault sections into a label->value map, skipping comments and
   // anything still containing a <FILL / <optional placeholder.
@@ -30,32 +31,7 @@
     });
   });
 
-  // Map many possible form-field names/labels to our vault keys.
-  var ALIASES = {
-    firstname: ['first name', 'firstname', 'given name', 'legal first name'],
-    lastname: ['last name', 'lastname', 'family name', 'surname', 'legal last name'],
-    fullname: ['full name', 'name', 'legal name', 'your name'],
-    email: ['email', 'e-mail', 'email address'],
-    phone: ['phone', 'mobile', 'telephone', 'phone number', 'contact number'],
-    city: ['city', 'town'],
-    state: ['state', 'province', 'region'],
-    country: ['country'],
-    postalcode: ['zip', 'postal', 'postal code', 'pincode', 'pin code'],
-    linkedin: ['linkedin', 'linkedin url', 'linkedin profile'],
-    portfolio: ['portfolio', 'website', 'personal site'],
-    github: ['github'],
-    currentcompany: ['current company', 'current employer', 'company', 'employer'],
-    currenttitle: ['current title', 'job title', 'current role', 'position'],
-    noticeperiod: ['notice period', 'notice'],
-    expectedctc: ['expected salary', 'expected ctc', 'salary expectation', 'desired salary', 'expected compensation'],
-    currentctc: ['current salary', 'current ctc', 'current compensation'],
-    yearsofexperience: ['years of experience', 'total experience', 'experience'],
-    whythiscompany: ['why do you want to work', 'why this company', 'why are you interested', 'motivation'],
-    whythisrole: ['why this role', 'why are you a good fit', 'why should we'],
-    shortbio: ['tell us about yourself', 'summary', 'about you', 'cover letter', 'additional information']
-  };
-
-  function normalize(s) { return (s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+  var normalize = M.normalize;
 
   // Find the human label associated with an input element.
   function labelFor(el) {
@@ -78,17 +54,8 @@
     return normalize(txt);
   }
 
-  // Resolve a vault value for a given field label.
-  function valueForLabel(label) {
-    for (var key in ALIASES) {
-      if (!answers[key]) continue;
-      var hit = ALIASES[key].some(function (a) { return label.indexOf(a) > -1; });
-      if (hit) return answers[key];
-    }
-    // Direct key match fallback.
-    for (var k in answers) { if (label.indexOf(k) > -1) return answers[k]; }
-    return null;
-  }
+  // Resolve a vault value for a given field label (delegates to tested rules).
+  function valueForLabel(label) { return M.valueForLabel(label, answers); }
 
   function setValue(el, value) {
     var proto = el.tagName === 'TEXTAREA'
@@ -101,22 +68,105 @@
     el.style.outline = '2px solid #1f883d';
   }
 
-  var filled = 0, skipped = 0;
+  // DELIBERATELY SKIP legally-sensitive controls — these are yours to answer.
+  // EEO/diversity questions and "I certify/agree" attestations are left untouched
+  // and reported so you handle them yourself. (Rule lives in matcher.js, tested.)
+  var isSensitive = M.isSensitive;
+
+  var filled = 0, skipped = 0, sensitive = 0;
+
+  // ---- Text / email / phone / url / textarea ----
   var inputs = document.querySelectorAll(
     'input[type=text], input[type=email], input[type=tel], input[type=url], input:not([type]), textarea'
   );
   inputs.forEach(function (el) {
     if (el.disabled || el.readOnly || el.offsetParent === null) return;
     if (el.value && el.value.trim()) return; // never overwrite what you already typed
-    var val = valueForLabel(labelFor(el));
+    var label = labelFor(el);
+    if (isSensitive(label)) { sensitive++; return; }
+    var val = valueForLabel(label);
     if (val) { setValue(el, val); filled++; } else { skipped++; }
+  });
+
+  // ---- Native <select> dropdowns ----
+  // Pick the option whose text best matches the vault value (tested rule).
+  function selectBestOption(sel, want) {
+    var texts = [].map.call(sel.options, function (o) { return o.textContent; });
+    var bestText = M.bestOption(texts, want);
+    if (bestText === null) return false;
+    for (var i = 0; i < sel.options.length; i++) {
+      if (normalize(sel.options[i].textContent) === normalize(bestText)) {
+        sel.value = sel.options[i].value;
+        sel.dispatchEvent(new Event('input', { bubbles: true }));
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        sel.style.outline = '2px solid #1f883d';
+        return true;
+      }
+    }
+    return false;
+  }
+  document.querySelectorAll('select').forEach(function (sel) {
+    if (sel.disabled || sel.offsetParent === null) return;
+    if (sel.value && sel.selectedIndex > 0) return; // already chosen
+    var label = labelFor(sel);
+    if (isSensitive(label)) { sensitive++; return; }
+    var val = valueForLabel(label);
+    if (val && selectBestOption(sel, val)) filled++; else skipped++;
+  });
+
+  // ---- Radio groups and standalone checkboxes (Yes/No questions) ----
+  // Group radios by name, resolve a vault value for the group's label, then
+  // click the radio whose own label text matches that value (e.g. "No").
+  function groupLabel(radio) {
+    // Prefer a fieldset/legend or a container label over the radio's own tiny label.
+    var fs = radio.closest('fieldset');
+    var txt = '';
+    if (fs) { var lg = fs.querySelector('legend'); if (lg) txt += ' ' + lg.textContent; }
+    var container = radio.closest('[role=group], .field, .form-group, [data-automation-id]');
+    if (container) txt += ' ' + (container.getAttribute('data-automation-id') || '');
+    return normalize(txt + ' ' + labelFor(radio));
+  }
+  function optionLabel(radio) {
+    if (radio.id) {
+      var l = document.querySelector('label[for="' + CSS.escape(radio.id) + '"]');
+      if (l) return normalize(l.textContent);
+    }
+    var p = radio.closest('label');
+    if (p) return normalize(p.textContent);
+    return normalize(radio.value);
+  }
+  var seenGroups = {};
+  document.querySelectorAll('input[type=radio]').forEach(function (radio) {
+    var name = radio.name || radio.id;
+    if (!name || seenGroups[name]) return;
+    seenGroups[name] = true;
+    var group = document.querySelectorAll('input[type=radio][name="' + CSS.escape(radio.name || '') + '"]');
+    if (!group.length) group = [radio];
+    if ([].some.call(group, function (r) { return r.checked; })) return; // already answered
+    var label = groupLabel(radio);
+    if (isSensitive(label)) { sensitive++; return; }
+    var want = valueForLabel(label);
+    if (!want) { skipped++; return; }
+    var picked = null;
+    [].forEach.call(group, function (r) {
+      if (!picked && M.radioMatches(optionLabel(r), want)) picked = r;
+    });
+    if (picked) {
+      picked.checked = true;
+      picked.dispatchEvent(new Event('click', { bubbles: true }));
+      picked.dispatchEvent(new Event('change', { bubbles: true }));
+      var pl = picked.closest('label') || picked.parentElement;
+      if (pl) pl.style.outline = '2px solid #1f883d';
+      filled++;
+    } else { skipped++; }
   });
 
   // A small, dismissable summary banner — and an explicit reminder.
   var bar = document.createElement('div');
   bar.style.cssText = 'position:fixed;z-index:2147483647;bottom:16px;left:50%;transform:translateX(-50%);background:#24292f;color:#fff;padding:12px 18px;border-radius:10px;font:14px -apple-system,Segoe UI,Roboto,Arial;box-shadow:0 4px 16px rgba(0,0,0,.3);max-width:90vw';
   bar.innerHTML = 'Autofill: filled <b>' + filled + '</b> field(s), skipped ' + skipped +
-    '. <b>Review everything</b> (especially work authorization, salary, and any required dropdowns/attestations) before you submit. ' +
+    ', left <b>' + sensitive + '</b> sensitive field(s) for you. ' +
+    '<b>Review everything</b> — especially work authorization, salary, EEO questions, and any "I certify" attestations — before you submit. ' +
     '<span style="cursor:pointer;text-decoration:underline" onclick="this.parentElement.remove()">dismiss</span>';
   document.body.appendChild(bar);
 })();
