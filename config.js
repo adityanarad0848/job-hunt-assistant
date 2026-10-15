@@ -17,6 +17,9 @@ module.exports = {
     country: 'in', // Adzuna country code (India)
     // A job must match one of these (case-insensitive substring) to count as in-location.
     allow: ['pune', 'remote', 'india', 'anywhere'],
+    // Strict mode: if true, jobs without a matching location are excluded entirely.
+    // If false, out-of-location jobs get a -20 point penalty but remain visible.
+    strict: true,
   },
 
   // ---- Minimum score (0-100) to appear in the dashboard ----

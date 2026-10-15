@@ -32,9 +32,12 @@ function isMnc(company, mncAllowList) {
   return mncAllowList.some((m) => c.includes(m));
 }
 
-function matchesLocation(location, allow) {
+function matchesLocation(location, allow, strict) {
   const l = location.toLowerCase();
-  if (!l) return true; // unknown location: don't exclude, let score decide
+  if (!l) {
+    // Unknown/empty location: in strict mode exclude it, otherwise allow scoring to decide
+    return !strict;
+  }
   return allow.some((a) => l.includes(a));
 }
 
@@ -60,7 +63,10 @@ function scoreJob(job, profile, config) {
   const sen = seniorityAdjust(job.title, profile);
 
   const mnc = isMnc(job.company, config.mncAllowList);
-  const locOk = matchesLocation(job.location, config.location.allow);
+  const locOk = matchesLocation(job.location, config.location.allow, config.location.strict);
+
+  // Location gate: in strict mode, exclude non-India jobs entirely
+  if (config.location.strict && !locOk) return null;
 
   let score = tight.points + broad.points + sen.adj;
 
@@ -69,8 +75,8 @@ function scoreJob(job, profile, config) {
     if (config.mncOnly) return null; // dropped entirely
     score -= config.mncDownrank;
   }
-  // Location gate: out-of-location gets a heavy penalty but isn't deleted.
-  if (!locOk) score -= 20;
+  // Location penalty (only applies in non-strict mode)
+  if (!config.location.strict && !locOk) score -= 20;
 
   score = Math.max(0, Math.min(100, Math.round(score)));
 
